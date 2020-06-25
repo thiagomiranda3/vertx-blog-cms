@@ -1,5 +1,7 @@
 package br.com.tommiranda;
 
+import br.com.tommiranda.notifications.NotificationSuccess;
+import com.google.gson.Gson;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -11,6 +13,7 @@ import io.vertx.sqlclient.PoolOptions;
 
 public class MainVerticle extends AbstractVerticle {
 
+    private Gson gson = new Gson();
     private PgPool pgClient;
 
     private Future<Void> prepareDatabase() {
@@ -19,9 +22,9 @@ public class MainVerticle extends AbstractVerticle {
         PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
         PgConnectOptions connectOptions = new PgConnectOptions().setPort(5432)
                                                                 .setHost("192.168.0.111")
-                                                                .setDatabase("blog-cms")
-                                                                .setUser("blog-cms")
-                                                                .setPassword("blog-cms");
+                                                                .setDatabase("blog_cms")
+                                                                .setUser("blog_cms")
+                                                                .setPassword("blog_cms");
 
         PgPool pgClient = PgPool.pool(vertx, connectOptions, poolOptions);
 
@@ -37,7 +40,11 @@ public class MainVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
 
-        router.get("/hello").handler();
+        router.get("/hello").handler(ctx -> {
+            ctx.response()
+               .putHeader("Content-Type", "application/json; charset=utf-8")
+               .end(gson.toJson(new NotificationSuccess("Olá Mundo")));
+        });
 
         server.requestHandler(router)
               .listen(8080, ar -> {
