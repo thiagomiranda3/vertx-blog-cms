@@ -1,4 +1,4 @@
-package br.com.tommiranda.notifications;
+package br.com.tommiranda.blog.api.notifications;
 
 public class NotificationError extends Notification {
 

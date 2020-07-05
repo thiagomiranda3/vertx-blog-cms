@@ -1,0 +1,7 @@
+{
+  "httpPort": 8080,
+  "dbHost": "192.168.0.108",
+  "dbPort": "5432",
+  "dbName": "blog_cms",
+  "logLevel": "DEBUG"
+}
