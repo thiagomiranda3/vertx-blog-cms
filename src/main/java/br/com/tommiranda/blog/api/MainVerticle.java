@@ -12,10 +12,8 @@ import io.vertx.pgclient.PgPool;
 public class MainVerticle extends AbstractVerticle {
 
     private Gson gson = new Gson();
-    private PgPool pgClient;
 
-    public MainVerticle(PgPool pgClient) {
-        this.pgClient = pgClient;
+    public MainVerticle() {
     }
 
     private Future<Void> startHttpServer() {
