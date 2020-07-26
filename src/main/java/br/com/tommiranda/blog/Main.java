@@ -24,9 +24,9 @@ public class Main {
             final PgPool pgClient = new SetupDB(vertx, config).getPgClient();
 
             // Iniciando a classe que gerencia os DAOs
-            DAOLocator.initSingleton(pgClient);
+            DAOLocator daoLocator = DAOLocator.getInstance(pgClient);
 
-            vertx.deployVerticle(new MainVerticle());
+            vertx.deployVerticle(new MainVerticle(daoLocator));
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 logger.info("########## A APLICAÇÃO SERÁ FECHADA! ##########");

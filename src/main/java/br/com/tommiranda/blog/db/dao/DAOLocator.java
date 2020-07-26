@@ -20,10 +20,12 @@ public final class DAOLocator {
     private final Map<Class<?>, Object> daos = Maps.mutable.empty();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private DAOLocator(PgPool pgClient) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public DAOLocator(PgPool pgClient) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Reflections reflections = new Reflections("br.com.tommiranda.blog.db.dao.impl");
 
         Set<Class<? extends BaseDAO>> daoClasses = reflections.getSubTypesOf(BaseDAO.class);
+
+        logger.info("Iniciando DAOLocator");
 
         for (Class<? extends BaseDAO> daoClass : daoClasses) {
             Class<?>[] interfaces = daoClass.getInterfaces();
@@ -32,12 +34,12 @@ public final class DAOLocator {
                 throw new InstantiationDAOException("A classe " + daoClass.getSimpleName() + " deve implementar apenas uma interface DAO");
             }
 
-            logger.info("Instanciando " + daoClass.getSimpleName());
-            daos.put(interfaces[0], daoClass.getDeclaredConstructor().newInstance(pgClient));
+            logger.info("Instanciando DAO: " + daoClass.getSimpleName());
+            daos.put(interfaces[0], daoClass.getDeclaredConstructor(PgPool.class).newInstance(pgClient));
         }
     }
 
-    public static synchronized void initSingleton(PgPool pgClient) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public static synchronized DAOLocator getInstance(PgPool pgClient) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (locator == null) {
             if (pgClient == null) {
                 throw new InstantiationDAOException("Essa classe não pode ser inciado se pgClient for nulo");
@@ -45,9 +47,11 @@ public final class DAOLocator {
 
             locator = new DAOLocator(pgClient);
         }
+
+        return locator;
     }
 
-    public static <I> I getService(Class<I> type) {
+    public <I> I getService(Class<I> type) {
         if(locator == null) {
             throw new IllegalStateException("É necessário inicializar essa classe com initSingleton antes de utilizar esse método");
         }
